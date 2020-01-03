@@ -34,7 +34,7 @@ function initScene(sceneInfo) {
   container = document.getElementById("container");
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
+  // scene.background = new THREE.Color(0xffffff);
 
   camera = new THREE.PerspectiveCamera(
     45,
