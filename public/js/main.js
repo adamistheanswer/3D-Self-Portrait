@@ -1,12 +1,8 @@
-if (WEBGL.isWebGLAvailable() === false) {
-  document.body.appendChild(WEBGL.getWebGLErrorMessage());
-}
+let orbitControls;
+let container, camera, scene, renderer, loader, effect;
+let gltf, mixer;
 
-var orbitControls;
-var container, camera, scene, renderer, loader, effect;
-var gltf, mixer;
-
-var scenes = {
+let scenes = {
   remesh: {
     url: "./models/gltf/remeshDraco.gltf",
     cameraPos: new THREE.Vector3(-0.7, 0.6, 2),
@@ -19,22 +15,15 @@ var scenes = {
   }
 };
 
-var state = {
-  scene: Object.keys(scenes)[0]
-};
-
 function onload() {
   window.addEventListener("resize", onWindowResize, false);
-
-  initScene(scenes[state.scene]);
+  initScene(scenes[Object.keys(scenes)[0]]);
   animate();
 }
 
 function initScene(sceneInfo) {
   container = document.getElementById("container");
-
   scene = new THREE.Scene();
-  // scene.background = new THREE.Color(0xffffff);
 
   camera = new THREE.PerspectiveCamera(
     45,
@@ -44,27 +33,25 @@ function initScene(sceneInfo) {
   );
   scene.add(camera);
 
-  var spot1;
-
   if (sceneInfo.addLights) {
-    var ambient = new THREE.AmbientLight(0xffffff);
+    let ambient = new THREE.AmbientLight(0xffffff);
     ambient.intensity = 1.65;
     scene.add(ambient);
 
-    var directionalLight = new THREE.DirectionalLight(0xdddddd, 2.5);
+    let directionalLight = new THREE.DirectionalLight(0xdddddd, 2.5);
     directionalLight.position.set(-0.1, -0.1, 1).normalize();
     scene.add(directionalLight);
   }
 
   // RENDERER
-  renderer = new THREE.WebGLRenderer({ antialias: true,  alpha: true });
-  renderer.setClearColor( 0x000000, 0 ); 
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.gammaOutput = true;
   renderer.physicallyCorrectLights = true;
 
-  //var helper = new THREE.GridHelper( 1200, 60, 0xFF4444, 0x404040 );
+  //let helper = new THREE.GridHelper( 1200, 60, 0xFF4444, 0x404040 );
   //this.scene.add( helper );
 
   renderer.shadowMap.enabled = true;
@@ -74,19 +61,39 @@ function initScene(sceneInfo) {
 
   orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  loader = new THREE.GLTFLoader();
+  const loadingManager = new THREE.LoadingManager();
+
+  loadingManager.onLoad = function() {
+    console.log("Loading complete!");
+    const loadingScreen = document.getElementById("loading-screen");
+    loadingScreen.classList.add("fade-out");
+    loadingScreen.addEventListener("transitionend", this.onTransitionEnd);
+    var elem = document.querySelector("#loading-screen");
+    elem.parentNode.removeChild(elem);
+  };
+
+  loadingManager.onProgress = function() {
+    document.getElementById("loadingtext").innerHTML =
+      "Loading 3D Portrait";
+  };
+
+  loadingManager.onError = function(url) {
+    console.log("There was an error loading " + url);
+  };
+
+  loader = new THREE.GLTFLoader(loadingManager);
 
   THREE.DRACOLoader.setDecoderPath("js/libs/draco/gltf/");
-  loader.setDRACOLoader(new THREE.DRACOLoader());
+  loader.setDRACOLoader(new THREE.DRACOLoader(loadingManager));
 
-  var url = sceneInfo.url;
+  let url = sceneInfo.url;
 
-  var loadStartTime = performance.now();
+  let loadStartTime = performance.now();
 
   loader.load(
     url,
     function(gltf) {
-      var object = gltf.scene;
+      let object = gltf.scene;
 
       console.info(
         "Load time: " + (performance.now() - loadStartTime).toFixed(2) + " ms."
@@ -102,10 +109,6 @@ function initScene(sceneInfo) {
 
       if (sceneInfo.objectPosition) {
         object.position.copy(sceneInfo.objectPosition);
-
-        if (spot1) {
-          spot1.target.position.copy(sceneInfo.objectPosition);
-        }
       }
 
       if (sceneInfo.objectRotation) {
@@ -142,9 +145,7 @@ function onWindowResize() {
 
 function animate() {
   requestAnimationFrame(animate);
-
   orbitControls.update();
-
   render();
 }
 
@@ -159,7 +160,7 @@ function reload() {
 
   if (loader && mixer) mixer.stopAllAction();
 
-  initScene(scenes[state.scene]);
+  initScene(scenes[Object.keys(scenes)[0]]);
 }
 
 onload();
