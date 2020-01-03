@@ -57,7 +57,8 @@ function initScene(sceneInfo) {
   }
 
   // RENDERER
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true,  alpha: true });
+  renderer.setClearColor( 0x000000, 0 ); 
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.gammaOutput = true;
