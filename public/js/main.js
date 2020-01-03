@@ -5,9 +5,9 @@ let gltf, mixer;
 let scenes = {
   remesh: {
     url: "./models/gltf/remeshDraco.gltf",
-    cameraPos: new THREE.Vector3(-0.7, 0.6, 2),
+    cameraPos: new THREE.Vector3(-0.7, 0.4, 2),
     objectRotation: new THREE.Euler(-1.58, 0, 0),
-    objectPosition: new THREE.Euler(0, -0.25, 0),
+    objectPosition: new THREE.Euler(0, -0.30, 0),
     objectScale: new THREE.Vector3(2.6, 2.6, 2.6),
     addLights: true,
     shadows: true,
